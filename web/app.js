@@ -41,6 +41,7 @@ async function boot() {
     await init();
     state.wasmReady = true;
     setStatus("Drop a .ctb file or choose one from disk.");
+    await loadDemo();
   } catch (error) {
     setStatus(`Failed to load the WASM parser: ${error.message}`);
   }
@@ -301,6 +302,19 @@ function formatNumber(value) {
 
 function setStatus(message) {
   elements.status.textContent = message;
+}
+
+async function loadDemo() {
+  try {
+    setStatus("Loading demo file…");
+    const response = await fetch("demo.ctb");
+    if (!response.ok) return;
+    const blob = await response.blob();
+    const file = new File([blob], "demo.ctb", { type: "application/octet-stream" });
+    await handleFile(file);
+  } catch {
+    setStatus("Drop a .ctb file or choose one from disk.");
+  }
 }
 
 function escapeHtml(value) {
