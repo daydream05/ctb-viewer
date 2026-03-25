@@ -1,0 +1,17 @@
+[package]
+name = "ctb_viewer_wasm"
+version = "0.1.0"
+edition = "2024"
+description = "WebAssembly bindings for the CTB file viewer"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+common = { path = "/Users/vincep/projects/resin-slicer/common" }
+ctb_format = { path = "/Users/vincep/projects/resin-slicer/format/ctb_format" }
+js-sys = "0.3"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+wasm-bindgen = "0.2"

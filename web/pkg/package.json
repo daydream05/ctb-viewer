@@ -1,0 +1,15 @@
+{
+  "name": "ctb_viewer_wasm",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "ctb_viewer_wasm_bg.wasm",
+    "ctb_viewer_wasm.js",
+    "ctb_viewer_wasm.d.ts"
+  ],
+  "main": "ctb_viewer_wasm.js",
+  "types": "ctb_viewer_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

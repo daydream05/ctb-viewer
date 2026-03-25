@@ -1,0 +1,7 @@
+{
+  "name": "ctb-viewer",
+  "private": true,
+  "scripts": {
+    "serve": "npx serve web"
+  }
+}

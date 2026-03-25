@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CTB Viewer | Open Resin Print Files in Your Browser</title>
+    <meta
+      name="description"
+      content="Preview CTB resin 3D print files directly in your browser. Inspect embedded thumbnails, exposure settings, and individual print layers with no uploads."
+    >
+    <meta
+      name="keywords"
+      content="ctb file viewer online, open ctb file without chitubox, resin 3d print file preview, chitubox file viewer"
+    >
+    <meta property="og:title" content="CTB Viewer">
+    <meta property="og:description" content="Inspect CTB resin print files locally in your browser.">
+    <meta property="og:type" content="website">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "CTB Viewer",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Web",
+        "description": "Browser-based CTB file viewer for resin 3D printing that runs entirely client-side."
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    >
+    <script>
+      tailwind = {
+        config: {
+          theme: {
+            extend: {
+              fontFamily: {
+                sans: ["Space Grotesk", "sans-serif"],
+                mono: ["IBM Plex Mono", "monospace"]
+              },
+              boxShadow: {
+                glow: "0 0 0 1px rgba(125, 211, 252, 0.14), 0 32px 80px rgba(2, 8, 23, 0.45)"
+              }
+            }
+          }
+        }
+      };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+
+      body {
+        background:
+          radial-gradient(circle at top left, rgba(34, 197, 94, 0.1), transparent 34%),
+          radial-gradient(circle at top right, rgba(59, 130, 246, 0.16), transparent 28%),
+          linear-gradient(180deg, #071118 0%, #04060c 44%, #020308 100%);
+      }
+
+      .panel-grid {
+        background-image:
+          linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+
+      [data-drop-zone][data-state="hover"] {
+        border-color: rgba(125, 211, 252, 0.9);
+        background: rgba(15, 23, 42, 0.9);
+      }
+
+      [data-drop-zone][data-state="busy"] {
+        border-color: rgba(74, 222, 128, 0.9);
+      }
+    </style>
+  </head>
+  <body class="min-h-screen text-slate-100 antialiased">
+    <div class="pointer-events-none fixed inset-0 panel-grid opacity-30"></div>
+    <div class="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-6 sm:px-6 lg:px-8">
+      <header class="mb-8 flex flex-col gap-4 rounded-[2rem] border border-white/10 bg-slate-950/70 p-6 shadow-glow backdrop-blur xl:flex-row xl:items-end xl:justify-between">
+        <div class="max-w-3xl">
+          <p class="mb-3 font-mono text-xs uppercase tracking-[0.36em] text-cyan-200/80">Browser-Based Resin Preview</p>
+          <h1 class="text-4xl font-semibold tracking-tight text-white sm:text-5xl">Inspect CTB prints before resin hits the vat.</h1>
+          <p class="mt-4 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
+            Drag in a <span class="font-mono text-cyan-100">.ctb</span> file to extract thumbnails, printer settings, material estimates, and raw UV layer images directly in the browser.
+          </p>
+        </div>
+        <div class="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3">
+          <p class="font-mono text-xs uppercase tracking-[0.28em] text-emerald-200/90">Privacy</p>
+          <p class="mt-2 max-w-xs text-sm text-emerald-50/90">Your files never leave your browser.</p>
+        </div>
+      </header>
+
+      <main class="grid flex-1 gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+        <section class="space-y-6">
+          <div
+            data-drop-zone
+            data-state="idle"
+            class="rounded-[2rem] border border-dashed border-cyan-300/35 bg-slate-950/70 p-6 shadow-glow backdrop-blur transition"
+          >
+            <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p class="font-mono text-xs uppercase tracking-[0.3em] text-cyan-200/80">Drop Zone</p>
+                <h2 class="mt-2 text-2xl font-semibold text-white">Open a CTB export</h2>
+                <p class="mt-2 max-w-xl text-sm leading-6 text-slate-300">
+                  Works entirely client-side with a Rust parser compiled to WebAssembly. Layer data is decoded on demand so large Saturn-class builds remain navigable.
+                </p>
+              </div>
+              <div class="flex flex-col items-start gap-3">
+                <button
+                  type="button"
+                  data-open-picker
+                  class="rounded-full border border-cyan-200/40 bg-cyan-300/10 px-5 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-300/20"
+                >
+                  Choose CTB File
+                </button>
+                <input id="file-input" type="file" accept=".ctb,application/octet-stream" class="hidden">
+                <p data-file-name class="font-mono text-xs text-slate-400">No file selected</p>
+              </div>
+            </div>
+            <div class="mt-5 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 font-mono text-sm text-slate-300">
+              <span class="text-slate-500">//</span>
+              <span data-status>Loading parser…</span>
+            </div>
+          </div>
+
+          <section class="grid gap-6 lg:grid-cols-[1.35fr_0.65fr]">
+            <article class="rounded-[2rem] border border-white/10 bg-slate-950/70 p-5 shadow-glow backdrop-blur">
+              <div class="mb-4 flex items-center justify-between gap-3">
+                <div>
+                  <p class="font-mono text-xs uppercase tracking-[0.3em] text-cyan-200/80">Preview</p>
+                  <h2 class="mt-1 text-xl font-semibold">Embedded large thumbnail</h2>
+                </div>
+                <p class="text-xs text-slate-400">Decoded from RGB565 RLE</p>
+              </div>
+              <div class="overflow-hidden rounded-[1.5rem] border border-white/10 bg-black/50 p-3">
+                <canvas id="large-preview" class="mx-auto block w-full rounded-2xl"></canvas>
+              </div>
+            </article>
+
+            <article class="rounded-[2rem] border border-white/10 bg-slate-950/70 p-5 shadow-glow backdrop-blur">
+              <div class="mb-4">
+                <p class="font-mono text-xs uppercase tracking-[0.3em] text-cyan-200/80">Aux Preview</p>
+                <h2 class="mt-1 text-xl font-semibold">Small thumbnail</h2>
+              </div>
+              <div class="overflow-hidden rounded-[1.5rem] border border-white/10 bg-black/50 p-3">
+                <canvas id="small-preview" class="mx-auto block w-full rounded-2xl"></canvas>
+              </div>
+            </article>
+          </section>
+
+          <article
+            data-scrubber-panel
+            data-ready="false"
+            class="rounded-[2rem] border border-white/10 bg-slate-950/70 p-5 shadow-glow backdrop-blur"
+          >
+            <div class="flex flex-col gap-4 border-b border-white/10 pb-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p class="font-mono text-xs uppercase tracking-[0.3em] text-cyan-200/80">Layer Explorer</p>
+                <h2 data-layer-label class="mt-1 text-2xl font-semibold">Layer viewer idle</h2>
+                <p data-layer-hint class="mt-2 text-sm text-slate-400">Load a CTB file to scrub the layer stack.</p>
+              </div>
+              <div class="w-full max-w-sm">
+                <label for="layer-slider" class="mb-2 block text-xs uppercase tracking-[0.26em] text-slate-400">Scrub Layers</label>
+                <input
+                  id="layer-slider"
+                  type="range"
+                  min="0"
+                  max="0"
+                  value="0"
+                  disabled
+                  class="h-2 w-full cursor-pointer appearance-none rounded-full bg-white/10 accent-cyan-300"
+                >
+              </div>
+            </div>
+            <div class="mt-5 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+              <div class="overflow-hidden rounded-[1.5rem] border border-white/10 bg-black p-3">
+                <canvas id="layer-canvas" class="mx-auto block w-full rounded-2xl"></canvas>
+              </div>
+              <div class="space-y-4">
+                <section class="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4">
+                  <h3 class="mb-3 font-mono text-xs uppercase tracking-[0.26em] text-cyan-200/80">Layer Telemetry</h3>
+                  <dl data-layer-meta class="space-y-2 text-sm text-slate-200">
+                    <div class="text-slate-400">Layer details appear after parsing.</div>
+                  </dl>
+                </section>
+                <section class="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4">
+                  <h3 class="mb-3 font-mono text-xs uppercase tracking-[0.26em] text-cyan-200/80">Rendering Notes</h3>
+                  <p class="text-sm leading-6 text-slate-300">
+                    Layer pixels are shown white-on-black to match UV exposure. Anti-aliased values remain grayscale so edge ramps stay visible.
+                  </p>
+                </section>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <aside class="rounded-[2rem] border border-white/10 bg-slate-950/70 p-5 shadow-glow backdrop-blur">
+          <div class="mb-4">
+            <p class="font-mono text-xs uppercase tracking-[0.3em] text-cyan-200/80">Settings Panel</p>
+            <h2 class="mt-1 text-2xl font-semibold">Printer and job metadata</h2>
+            <p class="mt-2 text-sm leading-6 text-slate-400">Values are parsed from the CTB header and surfaced as clean browser-readable JSON from the WASM module.</p>
+          </div>
+          <div data-settings class="grid gap-4">
+            <p class="text-sm text-slate-400">Drop a CTB file to inspect printer settings, exposure, material estimates, and resin metadata.</p>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
